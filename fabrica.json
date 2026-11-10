@@ -1,0 +1,1 @@
+{"lang": "python", "package": "trysac-rubric-builder", "commands": {"install": [["uv", "sync", "--all-extras"]], "check": [["uv", "run", "python", "scripts/check.py"]]}}
