@@ -9,4 +9,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Added `rubric_builder` utility for versioned grading rubrics with anchored levels, fingerprinting, semantic version bumps, and judge prompt rendering.
 - Initial project structure from the factory utility template.

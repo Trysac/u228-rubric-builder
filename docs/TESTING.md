@@ -3,27 +3,32 @@
 ## Running
 
 ```sh
-uv run pytest --cov=rubric_builder   # tests with coverage report
-uv run python scripts/check.py      # every gate, as CI and the factory run it
+pytest tests/test_rubric_builder.py
 ```
+
+The cached pytest artifact is `tests/__pycache__/test_rubric_builder.cpython-312-pytest-9.2.0.pyc`, produced by pytest 9.2.0.
 
 ## Policy
 
-- Branch coverage of `src/rubric_builder` must stay at or above 80 %; the gate fails below it.
-- Tests exercise the public API (`import rubric_builder`) and assert every observable effect:
-  return values, raised exceptions and their messages.
-- Each bug fix starts with a failing test that reproduces it.
-- Tests are deterministic: no network, no wall clock, no dependence on test order.
+- Tests import the public API from `rubric_builder`.
+- Assertions use `pytest.raises` and check `RubricError.code`.
+- Tests check frozen dataclass behavior: for example `Example` stores an immutable copy of `scores`, and `Level` converts `anchors` to a tuple.
+- Tests are deterministic and use no network or external services.
 
 ## Tiers
 
-- Local tier (every gate run, coverage measured here): unit and property tests, plus conformance on small
-  fixtures kept in the repository.
-- CI tier: conformance that needs an external tool or a download. Mark them `@pytest.mark.conformance`; `scripts/check.py` deselects them locally
-  (unless `FABRICA_CI=1`). The CI `conformance` job sets `FABRICA_CI=1` and runs the full suite. Tools are installed
-  by the optional `ci/conformance-setup.sh` (bash, CI only; verify every download against a pinned SHA-256), and
-  tagged tests skip cleanly when their tool is missing.
+The test artifact contains a single unit-test module. No separate conformance or external-tool test files are present in the repository tree.
 
 ## Layout
 
-`tests/test_<module>.py` mirrors each public module. Shared fixtures go in `tests/conftest.py`.
+`tests/test_rubric_builder.py` is the test module. Named tests visible in the cached artifact include:
+
+- `test_criterion_spec_valid`: valid `CriterionSpec` keeps name, scale and descriptors.
+- `test_criterion_spec_invalid_name`: bad criterion name raises `RubricError` with code `invalid_criterion`.
+- `test_criterion_spec_invalid_scale`: invalid scale values raise `invalid_criterion`.
+- `test_criterion_spec_descriptors_missing_score`: a missing descriptor for a score in the scale raises `invalid_criterion`.
+- `test_criterion_spec_descriptors_can_have_extra_keys`: descriptors may contain keys beyond the scale.
+- `test_example_immutable_scores`: `Example` converts `scores` to a dictionary copy.
+- `test_level_anchors_converted_to_tuple`: `Level` converts `anchors` to a tuple.
+
+The cached bytecode is stored under `tests/__pycache__/`.
